@@ -1,49 +1,52 @@
 package platform;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 @RestController
 public class CodeController {
-    @Autowired
-    public CodeController(){
+    private final CodeService codeService;
+    private Code code;
 
+    @Autowired
+    public CodeController(CodeService codeService){
+        this.codeService = codeService;
+        this.code = new Code(codeService.getInitialCode());
     }
 
-    String code = """
-    <html>
-    <head>
-    <title>Code</title>
-    </head>
-    <body>
-    <pre>
-        public static void main(String[] args) {
-            SpringApplication.run(CodeSharingPlatform.class, args);
-        }</pre>
-    </body>
-    </html>""";
-
-    int start = code.indexOf("<pre>");
-    int end = code.indexOf("</pre");
-
-    String codeInsidePreTag= code.substring(start + 6, end);
-
     @GetMapping("/code")
-    public ResponseEntity<String> showCode(){
+    public ResponseEntity showCode(){
         if(true){
-            return ResponseEntity.ok().body(code);
+            return ResponseEntity.ok().body(code.getCodeAll());
         }
-        return ResponseEntity.badRequest().body("r");
+        return ResponseEntity.badRequest().body("Bad Request");
     }
 
     @GetMapping("/api/code")
     public ResponseEntity showApiCode(){
-        return new ResponseEntity<>(Map.of("code", codeInsidePreTag), HttpStatus.OK);
+        return ResponseEntity.ok().body(code);
     }
+    @PostMapping(value = "/api/code/new")
+    public ResponseEntity newCode(
+            @RequestBody NewCodeModel newCode
+
+    ){
+        codeService.setNewCodeFormatted(newCode.getCode());
+        String codeFormatted = codeService.getInitialCode();
+        code.setDate(codeService.getUpdatedDate());
+        code.setCodeAll(codeFormatted);
+        return ResponseEntity.ok().body("{}");
+    }
+
+    @GetMapping(value = "/code/new")
+    public ResponseEntity showNewCode(
+    ){
+        return ResponseEntity.ok().body(codeService.getBaseCodeGetNew());
+    }
+
+
 }
