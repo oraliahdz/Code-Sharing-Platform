@@ -1,27 +1,33 @@
 package platform;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @JsonPropertyOrder(alphabetic=true)
 public class Code {
 
-    @JsonIgnore
-    String codeAll;
     @JsonProperty("code")
+    String codeAll;
+    @JsonIgnore
     String codeInsidePreTag;
-    LocalDate date;
+    @JsonIgnore
+    LocalDateTime dateTime;
+    String date;
+    @JsonIgnore
+    int id;
 
 
     public Code(){}
 
     public Code (String codeAll){
         this.codeAll = codeAll;
-        this.date = LocalDate.now();
+        this.dateTime = LocalDateTime.now();
         this.codeInsidePreTag = obtainPreTagCode(codeAll);
+        this.date = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
     }
 
     public String getCodeAll() {
@@ -33,16 +39,32 @@ public class Code {
         this.codeInsidePreTag = obtainPreTagCode(codeAll);
     }
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public String getCodeInsidePreTag() {
         return codeInsidePreTag;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public String obtainPreTagCode(String code){
@@ -59,8 +81,8 @@ public class Code {
     @Override
     public String toString() {
         return "Code{" +
-                "codeInsidePreTag='" + codeInsidePreTag + '\'' +
-                ", date=" + date +
+                "codeAll='" + codeAll + '\'' +
+                ", date='" + date + '\'' +
                 '}';
     }
 }
