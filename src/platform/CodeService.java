@@ -16,10 +16,14 @@ public class CodeService {
     <html>
     <head>
     <title>Code</title>
+    <link rel="stylesheet"
+                           href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/default.min.css">
+                    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/highlight.min.js"></script>
+                    <script>hljs.initHighlightingOnLoad();</script>
     </head>
     <body>
         <span id="load_date"> %s </span>
-        <pre id="code_snippet">%s</pre>
+        <pre id="code_snippet"><code>%s</code></pre>
     </body>
     </html>""";
 
@@ -34,33 +38,44 @@ public class CodeService {
     int codeId = 0;
 
     String baseCodeGetNew = """
-    <html>
-    <head>
-    <title>Create</title>
-    </head>
-    <body>
-        <span id="load_date"> %s </span>
-        <textarea id="code_snippet">
-        %s</textarea>
-        <button id="send_snippet" type="submit" onclick="send()">Submit</button>
-    </body>
-    </html>""";
+            <html>
+            <head>
+            <title>Create</title>
+                    <link rel="stylesheet"
+                           href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/default.min.css">
+                    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/highlight.min.js"></script>
+                    <script>hljs.initHighlightingOnLoad();</script>
+            </head>
+            <body>
+                <span id="load_date"> %s </span>
+                <textarea id="code_snippet">
+                %s</textarea>
+                <button id="send_snippet" type="submit" onclick="send()">Submit</button>
+            </body>
+            </html>""";
 
     String baseCodeLatest = """
-    <html>
-    <head>
-    <title>Latest</title>
-    </head>
-    <body>
-        %s
-    </body>
-    </html>""";
+            <html>
+            <head>
+                    <link rel="stylesheet"
+                           href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/default.min.css">
+                    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/highlight.min.js"></script>
+                    <script>hljs.initHighlightingOnLoad();</script>
+            <title>Latest</title>
+            </head>
+            <body>
+                %s
+            </body>
+            </html>""";
 
-    List<Code> codes = new ArrayList<>();
+
+
+    private final CodeRepository codeRepository;
 
     @Autowired
-    public CodeService(){
+    public CodeService(CodeRepository codeRepository){
         this.initialCode = baseCode.formatted(date, initiaiPreCode);
+        this.codeRepository = codeRepository;
     }
 
     public String getInitialCode (){
@@ -86,12 +101,13 @@ public class CodeService {
         this.codeId++;
         Code newCode = new Code(code);
         newCode.setId(this.codeId);
-        this.codes.add(newCode);
+        //this.codes.add(newCode);
+        codeRepository.save(newCode);
         return codeId;
     }
 
     public Code getCodeById(int id){
-        for(Code code : this.codes){
+        for(Code code : codeRepository.findAll()){
             if (code.getId() == id){
                 return code;
             }
@@ -111,13 +127,14 @@ public class CodeService {
     }
 
     public List<Code> getLastElements() {
+        List<Code> list = codeRepository.findAll();
         List<Code> filtered = new ArrayList<>();
-        if(codes.size()<=10){
-            List<Code> copy = new ArrayList<>(codes);
-            copy = sortList(copy);
-            return copy;
+        if(list.size()<=10){
+            filtered = sortList(list);
+            return filtered;
         }else{
-            filtered = codes.stream().skip(codes.size()-10).limit(10).collect(Collectors.toList());
+            //filtered = codes.stream().skip(codes.size()-10).limit(10).collect(Collectors.toList());
+            filtered = list.stream().skip(list.size()-10).limit(10).collect(Collectors.toList());
             filtered = sortList(filtered);
             return filtered;
         }
@@ -127,7 +144,7 @@ public class CodeService {
         String loopText = "";
         String baseText = """
                 <span id="load_date"> %s </span>
-                <pre id="code_snippet">%s</pre>
+                <pre id="code_snippet"><code>%s</code></pre>
                 """;
         for(Code code : list){
             loopText += baseText.formatted(code.getDate(), code.getCodeAll());

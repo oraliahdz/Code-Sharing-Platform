@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Entity
 @JsonPropertyOrder(alphabetic=true)
 public class Code {
 
@@ -17,6 +20,7 @@ public class Code {
     @JsonIgnore
     LocalDateTime dateTime;
     String date;
+    @Id
     @JsonIgnore
     int id;
 
